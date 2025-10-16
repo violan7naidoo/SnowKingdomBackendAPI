@@ -4,19 +4,19 @@ namespace SnowKingdomBackendAPI.ApiService.Models;
 
 public enum SymbolId
 {
-    Wild,
-    Scatter,
-    Crown,
-    Dragon,
-    Leopard,
-    Queen,
-    Stone,
-    Wolf,
-    Ace,
-    Jack,
-    QueenCard,
-    King,
-    Ten
+    WILD,
+    SCATTER,
+    CROWN,
+    DRAGON,
+    LEOPARD,
+    QUEEN,
+    STONE,
+    WOLF,
+    ACE,
+    JACK,
+    QUEEN_CARD,
+    KING,
+    TEN
 }
 
 public class SymbolConfig

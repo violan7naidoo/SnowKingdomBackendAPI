@@ -32,11 +32,11 @@ public class GameEngine
             }
 
             // Check for wild symbols
-            if (firstSymbol != SymbolId.Wild)
+            if (firstSymbol != SymbolId.WILD)
             {
                 // If first symbol is not wild, check for wilds at the start
                 var wildCount = 0;
-                while (wildCount < lineSymbols.Count && lineSymbols[wildCount] == SymbolId.Wild)
+                while (wildCount < lineSymbols.Count && lineSymbols[wildCount] == SymbolId.WILD)
                 {
                     wildCount++;
                 }
@@ -75,7 +75,7 @@ public class GameEngine
         {
             for (int rowIndex = 0; rowIndex < symbolGrid[reelIndex].Count; rowIndex++)
             {
-                if (symbolGrid[reelIndex][rowIndex] == SymbolId.Scatter)
+                if (symbolGrid[reelIndex][rowIndex] == SymbolId.SCATTER)
                 {
                     scatterCount++;
                     scatterPositions.Add((reelIndex, rowIndex));
@@ -102,7 +102,7 @@ public class GameEngine
             result.WinningLines.Add(new WinningLine
             {
                 PaylineIndex = -1, // Special index for scatters
-                Symbol = SymbolId.Scatter,
+                Symbol = SymbolId.SCATTER,
                 Count = scatterCount,
                 Payout = scatterPayout,
                 Line = scatterPositions.Select(p => p.row).ToList()
