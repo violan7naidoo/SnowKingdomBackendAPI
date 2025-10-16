@@ -12,6 +12,12 @@ builder.Services.AddProblemDetails();
 builder.Services.AddSingleton<GameEngine>();
 builder.Services.AddSingleton<SessionService>();
 
+// Configure JSON options to use camelCase for API responses
+builder.Services.ConfigureHttpJsonOptions(options =>
+{
+    options.SerializerOptions.PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase;
+});
+
 // Add CORS policy to allow frontend communication
 builder.Services.AddCors(options =>
 {
@@ -24,9 +30,15 @@ builder.Services.AddCors(options =>
                 "https://localhost:9003",
                 "http://localhost:5073",
                 "https://localhost:5073",
+                "http://localhost:59775",
+                "https://localhost:59775",
+                "http://localhost:52436",
+                "https://localhost:52436",
                 "http://127.0.0.1:3000",
                 "http://127.0.0.1:9003",
-                "http://127.0.0.1:5073"
+                "http://127.0.0.1:5073",
+                "http://127.0.0.1:59775",
+                "http://127.0.0.1:52436"
             )
             .AllowAnyHeader()
             .AllowAnyMethod()

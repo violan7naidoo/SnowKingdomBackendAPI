@@ -47,7 +47,7 @@ public class SpinResult
     public int TotalWin { get; set; }
     public List<WinningLine> WinningLines { get; set; } = new();
     public ScatterWin ScatterWin { get; set; } = new();
-    public List<List<SymbolId>> Grid { get; set; } = new();
+    public List<List<string>> Grid { get; set; } = new();
 }
 
 public class PlayRequest
