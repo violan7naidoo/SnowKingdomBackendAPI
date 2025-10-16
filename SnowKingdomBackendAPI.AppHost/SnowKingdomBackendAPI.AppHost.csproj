@@ -13,7 +13,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\SnowKingdomBackendAPI.ApiService\SnowKingdomBackendAPI.ApiService.csproj" />
-    <ProjectReference Include="..\SnowKingdomBackendAPI.Web\SnowKingdomBackendAPI.Web.csproj" />
   </ItemGroup>
 
   <ItemGroup>

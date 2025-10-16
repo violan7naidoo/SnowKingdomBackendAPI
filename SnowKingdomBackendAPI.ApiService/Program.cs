@@ -12,10 +12,35 @@ builder.Services.AddProblemDetails();
 builder.Services.AddSingleton<GameEngine>();
 builder.Services.AddSingleton<SessionService>();
 
+// Add CORS policy to allow frontend communication
+builder.Services.AddCors(options =>
+{
+    options.AddDefaultPolicy(policy =>
+    {
+        policy.WithOrigins(
+                "http://localhost:3000",
+                "https://localhost:3000",
+                "http://localhost:9003",
+                "https://localhost:9003",
+                "http://localhost:5073",
+                "https://localhost:5073",
+                "http://127.0.0.1:3000",
+                "http://127.0.0.1:9003",
+                "http://127.0.0.1:5073"
+            )
+            .AllowAnyHeader()
+            .AllowAnyMethod()
+            .AllowCredentials();
+    });
+});
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
 app.UseExceptionHandler();
+
+// Enable CORS
+app.UseCors();
 
 app.MapPost("/play", async (PlayRequest request, GameEngine gameEngine, SessionService sessionService) =>
 {
