@@ -1,15 +1,13 @@
 var builder = DistributedApplication.CreateBuilder(args);
 
-// Define the Game Engine
+// Aspire automatically reads the ports from the C# projects' launchSettings.json
 var gameEngine = builder.AddProject<Projects.SnowKingdomBackendAPI_ApiService>("apiservice");
-
-// Define the RGS
 var rgsService = builder.AddProject<Projects.SnowKingdomBackendAPI_RGS>("rgsservice")
                         .WithReference(gameEngine);
 
-// Define the Frontend with the CORRECT relative path
-builder.AddNpmApp("frontend", "../../../FrontEnd", "dev") // <-- THIS IS THE FIX
+// Assign the Frontend to a fixed, stable port: 3000
+builder.AddNpmApp("frontend", "../../../FrontEnd", "dev")
        .WithReference(rgsService)
-       .WithHttpEndpoint(env: "PORT");
+       .WithHttpEndpoint(port: 3000, env: "PORT");
 
 builder.Build().Run();
