@@ -13,10 +13,12 @@
 
   <ItemGroup>
     <ProjectReference Include="..\SnowKingdomBackendAPI.ApiService\SnowKingdomBackendAPI.ApiService.csproj" />
+    <ProjectReference Include="..\SnowKingdomBackendAPI.RGS\SnowKingdomBackendAPI.RGS.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Aspire.Hosting.AppHost" Version="9.0.0" />
+    <PackageReference Include="Aspire.Hosting.AppHost" Version="9.5.1" />
+    <PackageReference Include="Aspire.Hosting.NodeJs" Version="9.5.1" />
   </ItemGroup>
 
 </Project>

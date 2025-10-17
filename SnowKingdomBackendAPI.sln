@@ -1,6 +1,6 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.14.36109.1 d17.14
+VisualStudioVersion = 17.14.36109.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SnowKingdomBackendAPI.AppHost", "SnowKingdomBackendAPI.AppHost\SnowKingdomBackendAPI.AppHost.csproj", "{4411A70F-C8C3-4D27-B57B-678F76BEE1F1}"
 EndProject
@@ -9,6 +9,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SnowKingdomBackendAPI.ApiService", "SnowKingdomBackendAPI.ApiService\SnowKingdomBackendAPI.ApiService.csproj", "{A9907D8D-29B5-8F2E-684A-3A3C35439F0B}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SnowKingdomBackendAPI.Web", "SnowKingdomBackendAPI.Web\SnowKingdomBackendAPI.Web.csproj", "{1EDD30BF-2CE5-0685-6D93-42F910D86374}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SnowKingdomBackendAPI.RGS", "SnowKingdomBackendAPI.RGS\SnowKingdomBackendAPI.RGS.csproj", "{A053CB5C-B74F-C540-2EB1-E41AAA425D54}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -32,6 +34,10 @@ Global
 		{1EDD30BF-2CE5-0685-6D93-42F910D86374}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1EDD30BF-2CE5-0685-6D93-42F910D86374}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1EDD30BF-2CE5-0685-6D93-42F910D86374}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A053CB5C-B74F-C540-2EB1-E41AAA425D54}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A053CB5C-B74F-C540-2EB1-E41AAA425D54}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A053CB5C-B74F-C540-2EB1-E41AAA425D54}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A053CB5C-B74F-C540-2EB1-E41AAA425D54}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
