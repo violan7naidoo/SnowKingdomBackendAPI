@@ -1,15 +1,15 @@
 var builder = DistributedApplication.CreateBuilder(args);
 
-// Define the Game Engine (your original ApiService)
+// Define the Game Engine
 var gameEngine = builder.AddProject<Projects.SnowKingdomBackendAPI_ApiService>("apiservice");
 
-// Define the new RGS service and tell it how to find the Game Engine
+// Define the RGS
 var rgsService = builder.AddProject<Projects.SnowKingdomBackendAPI_RGS>("rgsservice")
                         .WithReference(gameEngine);
 
-// Define the Frontend using AddNodeApp with the arguments passed as an array
-builder.AddNodeApp("frontend", "npm", "../SnowKingdom6x4-FrontEnd", new string[] { "run", "dev" }) // <-- CORRECTED SYNTAX
+// Define the Frontend with the CORRECT relative path
+builder.AddNpmApp("frontend", "../../../FrontEnd", "dev") // <-- THIS IS THE FIX
        .WithReference(rgsService)
-       .WithHttpsEndpoint(env: "PORT");
+       .WithHttpEndpoint(env: "PORT");
 
 builder.Build().Run();

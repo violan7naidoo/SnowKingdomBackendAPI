@@ -15,7 +15,7 @@ builder.Services.AddCors(options =>
     options.AddDefaultPolicy(policy =>
     {
         // IMPORTANT: Replace with your frontend's URL from the Aspire Dashboard
-        policy.WithOrigins("https://localhost:18888")
+        policy.WithOrigins("http://localhost:56656")
               .AllowAnyHeader()
               .AllowAnyMethod();
     });
