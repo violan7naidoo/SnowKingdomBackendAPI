@@ -17,7 +17,7 @@ public static class GameConfiguration
         {
             Id = SymbolId.SCATTER,
             Name = "SCATTER",
-            Payout = new Dictionary<int, int> { { 3, 2 }, { 4, 10 }, { 5, 250 }, { 6, 500 } },
+            Payout = new Dictionary<int, int> { { 3, 5 }, { 4, 10 }, { 5, 250 }, { 6, 500 } },
             Image = "/images/symbols/Scatter.png"
         },
         [SymbolId.CROWN] = new SymbolConfig
