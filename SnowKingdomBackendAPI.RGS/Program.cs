@@ -6,7 +6,7 @@ builder.AddServiceDefaults();
 // Add a typed HttpClient to communicate with the backend ApiService.
 builder.Services.AddHttpClient<GameApiClient>(client =>
 {
-    client.BaseAddress = new("http://snowkingdombackendapi.apiservice");
+    client.BaseAddress = new("http://apiservice");
 });
 
 // Add CORS policy to allow the frontend to call the RGS
