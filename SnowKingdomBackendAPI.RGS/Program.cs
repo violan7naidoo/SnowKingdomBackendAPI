@@ -1,22 +1,20 @@
 var builder = WebApplication.CreateBuilder(args);
 
-// Adds services for making HTTP calls and using Swagger
-builder.Services.AddHttpClient();
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+// Add service defaults & Aspire client integrations.
+builder.AddServiceDefaults();
 
-// Configures JSON to use camelCase to match the frontend
-builder.Services.ConfigureHttpJsonOptions(options =>
+// Add a typed HttpClient to communicate with the backend ApiService.
+builder.Services.AddHttpClient<GameApiClient>(client =>
 {
-    options.SerializerOptions.PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase;
+    client.BaseAddress = new("http://snowkingdombackendapi.apiservice");
 });
 
-// THIS IS THE FIX: Allow requests FROM the frontend's stable address.
+// Add CORS policy to allow the frontend to call the RGS
 builder.Services.AddCors(options =>
 {
     options.AddDefaultPolicy(policy =>
     {
-        policy.WithOrigins("http://localhost:3000") 
+        policy.WithOrigins("http://localhost:3000") // Your frontend URL
               .AllowAnyHeader()
               .AllowAnyMethod();
     });
@@ -24,33 +22,41 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
-
-// CRUCIAL: app.UseCors() must be called here.
 app.UseCors();
+app.MapDefaultEndpoints();
 
-app.MapPost("/play", async (PlayRequest request, IHttpClientFactory clientFactory) =>
+// This endpoint will be called by the frontend and will forward the request to the backend.
+app.MapPost("/play", async (PlayRequest request, GameApiClient gameApiClient) =>
 {
-    var httpClient = clientFactory.CreateClient("apiservice");
-    var gameEngineResponse = await httpClient.PostAsJsonAsync("/play", request);
-
-    if (!gameEngineResponse.IsSuccessStatusCode)
+    try
     {
-        return Results.Problem("Error calling the game engine.");
+        var response = await gameApiClient.PlayAsync(request);
+        return Results.Ok(response);
     }
-
-    var gameResult = await gameEngineResponse.Content.ReadFromJsonAsync<PlayResponse>();
-    return Results.Ok(gameResult);
+    catch (Exception ex)
+    {
+        Console.WriteLine($"Error forwarding request to ApiService: {ex.Message}");
+        return Results.Problem("Failed to connect to the game service.", statusCode: 503);
+    }
 });
 
 app.Run();
 
-// Defines the data shapes for the API
-public record PlayRequest(string SessionId, decimal BetAmount);
-public record PlayResponse(List<List<string>> Grid, decimal WinAmount, decimal NewBalance, List<WinningLine> WinningLines, int FreeSpinsLeft, int FreeSpinsWon);
-public record WinningLine(int PaylineIndex, string Symbol, int Count, decimal Payout);
+public record PlayRequest(string SessionId, int BetAmount);
+
+public class GameApiClient
+{
+    private readonly HttpClient _httpClient;
+
+    public GameApiClient(HttpClient httpClient)
+    {
+        _httpClient = httpClient;
+    }
+
+    public async Task<object?> PlayAsync(PlayRequest request)
+    {
+        var response = await _httpClient.PostAsJsonAsync("/play", request);
+        response.EnsureSuccessStatusCode();
+        return await response.Content.ReadFromJsonAsync<object>();
+    }
+}

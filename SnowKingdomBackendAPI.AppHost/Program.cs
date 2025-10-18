@@ -8,6 +8,6 @@ var rgsService = builder.AddProject<Projects.SnowKingdomBackendAPI_RGS>("rgsserv
 // Assign the Frontend to a fixed, stable port: 3000
 builder.AddNpmApp("frontend", "../../../FrontEnd", "dev")
        .WithReference(rgsService)
-       .WithHttpEndpoint(port: 3000, env: "PORT");
+       .WithHttpEndpoint(port: 3000, env: "PORT"); 
 
 builder.Build().Run();
