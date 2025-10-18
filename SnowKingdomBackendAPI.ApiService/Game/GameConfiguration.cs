@@ -10,42 +10,42 @@ public static class GameConfiguration
         {
             Id = SymbolId.WILD,
             Name = "WILD",
-            Payout = new Dictionary<int, int> { { 2, 5 }, { 3, 20 }, { 4, 100 }, { 5, 500 }, { 6, 2000 } },
+            Payout = new Dictionary<int, int> { { 3, 100 }, { 4, 300 }, { 5, 1000 }, { 6, 3000 } },
             Image = "/images/symbols/Wild.png"
         },
         [SymbolId.SCATTER] = new SymbolConfig
         {
             Id = SymbolId.SCATTER,
             Name = "SCATTER",
-            Payout = new Dictionary<int, int> { { 3, 5 }, { 4, 30 }, { 5, 150 }, { 6, 1000 } },
+            Payout = new Dictionary<int, int> { { 3, 2 }, { 4, 10 }, { 5, 250 }, { 6, 500 } },
             Image = "/images/symbols/Scatter.png"
         },
         [SymbolId.CROWN] = new SymbolConfig
         {
             Id = SymbolId.CROWN,
             Name = "CROWN",
-            Payout = new Dictionary<int, int> { { 3, 10 }, { 4, 60 }, { 5, 100 }, { 6, 150 } },
+            Payout = new Dictionary<int, int> { { 3, 40 }, { 4, 100 }, { 5, 250 }, { 6, 800 } },
             Image = "/images/symbols/Crown.png"
         },
         [SymbolId.DRAGON] = new SymbolConfig
         {
             Id = SymbolId.DRAGON,
             Name = "DRAGON",
-            Payout = new Dictionary<int, int> { { 3, 10 }, { 4, 30 }, { 5, 85 }, { 6, 120 } },
+            Payout = new Dictionary<int, int> { { 3, 20 }, { 4, 40 }, { 5, 200 }, { 6, 400 } },
             Image = "/images/symbols/Dragon.png"
         },
         [SymbolId.LEOPARD] = new SymbolConfig
         {
             Id = SymbolId.LEOPARD,
             Name = "LEOPARD",
-            Payout = new Dictionary<int, int> { { 3, 5 }, { 4, 30 }, { 5, 85 }, { 6, 120 } },
+            Payout = new Dictionary<int, int> { { 3, 20 }, { 4, 40 }, { 5, 200 }, { 6, 400 } },
             Image = "/images/symbols/Leopard.png"
         },
         [SymbolId.QUEEN] = new SymbolConfig
         {
             Id = SymbolId.QUEEN,
             Name = "QUEEN",
-            Payout = new Dictionary<int, int> { { 3, 5 }, { 4, 20 }, { 5, 60 }, { 6, 100 } },
+            Payout = new Dictionary<int, int> { { 3, 10 }, { 4, 20 }, { 5, 70 }, { 6, 140 } },
             Image = "/images/symbols/Queen.png"
         },
         [SymbolId.STONE] = new SymbolConfig
