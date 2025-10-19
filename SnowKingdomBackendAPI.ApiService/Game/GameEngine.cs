@@ -22,33 +22,24 @@ public class GameEngine
             var line = GameConstants.Paylines[paylineIndex];
             var lineSymbols = line.Select((row, reel) => symbolGrid[reel][row]).ToList();
 
-            var firstSymbol = lineSymbols[0];
-            var count = 1;
+            // Determine the winning symbol for the line (the first non-WILD symbol)
+            var winningSymbol = lineSymbols.FirstOrDefault(s => s != SymbolId.WILD);
 
-            // Count consecutive matching symbols
-            while (count < lineSymbols.Count && lineSymbols[count] == firstSymbol)
+            // If the line is all wilds, the winning symbol is WILD itself
+            if (winningSymbol == default(SymbolId))
+            {
+                winningSymbol = SymbolId.WILD;
+            }
+
+            // Count consecutive symbols from the left, where WILD substitutes for the winningSymbol
+            var count = 0;
+            while (count < lineSymbols.Count && (lineSymbols[count] == winningSymbol || lineSymbols[count] == SymbolId.WILD))
             {
                 count++;
             }
 
-            // Check for wild symbols
-            if (firstSymbol != SymbolId.WILD)
-            {
-                // If first symbol is not wild, check for wilds at the start
-                var wildCount = 0;
-                while (wildCount < lineSymbols.Count && lineSymbols[wildCount] == SymbolId.WILD)
-                {
-                    wildCount++;
-                }
-
-                if (wildCount > 0)
-                {
-                    // If we have leading wilds, they can substitute for the first symbol
-                    count = Math.Max(count, wildCount);
-                }
-            }
-
-            if (GameConfiguration.Symbols.TryGetValue(firstSymbol, out var symbolInfo) &&
+            // Check for a win based on the count and the determined winning symbol
+            if (GameConfiguration.Symbols.TryGetValue(winningSymbol, out var symbolInfo) &&
                 symbolInfo.Payout.TryGetValue(count, out var payout))
             {
                 var totalPayout = payout * betAmount;
@@ -58,7 +49,7 @@ public class GameEngine
                     result.WinningLines.Add(new WinningLine
                     {
                         PaylineIndex = paylineIndex,
-                        Symbol = firstSymbol,
+                        Symbol = winningSymbol, // Report the actual symbol that formed the win
                         Count = count,
                         Payout = totalPayout,
                         Line = line.Take(count).ToList()
@@ -67,7 +58,7 @@ public class GameEngine
             }
         }
 
-        // 2. Evaluate Scatters
+        // 2. Evaluate Scatters (No changes needed here)
         var scatterCount = 0;
         var scatterPositions = new List<(int reel, int row)>();
 
@@ -88,7 +79,6 @@ public class GameEngine
 
         if (scatterCount >= 3)
         {
-            // Add scatter payout (example: 3x, 4x, or 5x bet amount)
             var scatterPayout = betAmount * (scatterCount switch
             {
                 3 => 5,
@@ -98,7 +88,6 @@ public class GameEngine
 
             result.TotalWin += scatterPayout;
 
-            // Add scatter symbols to winning lines for visual feedback
             result.WinningLines.Add(new WinningLine
             {
                 PaylineIndex = -1, // Special index for scatters
