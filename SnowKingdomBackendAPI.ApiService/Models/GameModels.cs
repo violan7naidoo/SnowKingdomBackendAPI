@@ -81,16 +81,16 @@ public static class GameConstants
     public const int FreeSpinsAwarded = 10;
 
     public static readonly List<List<int>> Paylines =
-    [
-        [1, 1, 1, 1, 1, 1], // Middle-top row
-        [2, 2, 2, 2, 2, 2], // Middle-bottom row
-        [0, 0, 0, 0, 0, 0], // Top row
-        [3, 3, 3, 3, 3, 3], // Bottom row
-        [1, 0, 0, 0, 0, 1], // 5
-        [2, 3, 3, 3, 3, 2], // 6
-        [2, 1, 2, 1, 2, 1], // 7
-        [1, 2, 1, 2, 1, 2], // 8
-        [0, 1, 0, 1, 0, 1], // 9
-        [3, 2, 3, 2, 3, 2]  // 10
-    ];
+[
+    [0, 0, 0, 0, 0, 0], // Line 1: Top row (was Line 3)
+    [1, 1, 1, 1, 1, 1], // Line 2: Second row (was Line 1)
+    [2, 2, 2, 2, 2, 2], // Line 3: Third row (was Line 2)
+    [3, 3, 3, 3, 3, 3], // Line 4: Bottom row (unchanged)
+    [1, 0, 0, 0, 0, 1], // Line 5 (unchanged)
+    [2, 3, 3, 3, 3, 2], // Line 6 (unchanged)
+    [2, 1, 2, 1, 2, 1], // Line 7 (unchanged)
+    [1, 2, 1, 2, 1, 2], // Line 8 (unchanged)
+    [0, 1, 0, 1, 0, 1], // Line 9 (unchanged)
+    [3, 2, 3, 2, 3, 2]  // Line 10 (unchanged)
+];
 }
