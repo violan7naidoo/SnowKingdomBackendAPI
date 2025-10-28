@@ -1,7 +1,15 @@
+using SnowKingdomBackendAPI.ApiService.Services;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add service defaults & Aspire client integrations.
 builder.AddServiceDefaults();
+
+// Add controllers
+builder.Services.AddControllers();
+
+// Add SessionService
+builder.Services.AddSingleton<SessionService>();
 
 // Add a typed HttpClient to communicate with the backend ApiService.
 builder.Services.AddHttpClient<GameApiClient>(client =>
@@ -25,7 +33,10 @@ var app = builder.Build();
 app.UseCors();
 app.MapDefaultEndpoints();
 
-// This endpoint will be called by the frontend and will forward the request to the backend.
+// Map controllers
+app.MapControllers();
+
+// Legacy endpoint for backward compatibility
 app.MapPost("/play", async (PlayRequest request, GameApiClient gameApiClient) =>
 {
     try

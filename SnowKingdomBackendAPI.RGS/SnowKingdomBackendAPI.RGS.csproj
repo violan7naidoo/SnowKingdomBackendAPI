@@ -12,6 +12,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\SnowKingdomBackendAPI.ServiceDefaults\SnowKingdomBackendAPI.ServiceDefaults.csproj" />
+    <ProjectReference Include="..\SnowKingdomBackendAPI.ApiService\SnowKingdomBackendAPI.ApiService.csproj" />
   </ItemGroup>
 
 </Project>
