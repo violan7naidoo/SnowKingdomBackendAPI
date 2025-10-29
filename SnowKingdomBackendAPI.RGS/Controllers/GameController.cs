@@ -193,6 +193,11 @@ public class GameController : ControllerBase
 
             // Calculate total bet (use provided bet or calculate from bets array)
             var totalBet = request.Bet > 0 ? request.Bet : request.Bets.Sum(b => b.Amount);
+            
+            // Check if in free spins mode - if so, bet should be 0 and no balance deduction
+            var isInFreeSpinsMode = session.FreeSpinsRemaining > 0;
+            var actualBet = isInFreeSpinsMode ? 0 : totalBet;
+            
             var roundId = Guid.NewGuid().ToString("N");
             var withdrawTransactionId = Guid.NewGuid().ToString("N");
             var depositTransactionId = Guid.NewGuid().ToString("N");
@@ -200,42 +205,58 @@ public class GameController : ControllerBase
             // Store previous balance
             var prevBalance = session.Balance;
 
-            // Deduct bet from balance
-            session.Balance -= totalBet;
+            // Deduct bet from balance only if NOT in free spins mode
+            if (!isInFreeSpinsMode)
+            {
+                session.Balance -= totalBet;
+            }
 
             // Call backend game engine
+            // IMPORTANT: Always pass the original betAmount to engine for payout calculations
+            // The engine multiplies payouts by betAmount, so we need the actual bet value
+            // even in free spins mode (we just don't deduct it from balance)
             var backendRequest = new SnowKingdomBackendAPI.ApiService.Models.PlayRequest
             {
                 SessionId = request.SessionId,
-                BetAmount = (int)totalBet,
+                BetAmount = (int)totalBet, // Use totalBet for payout calculations
                 LastResponse = session.LastResponse
             };
 
             // Call the actual backend API
-            var gameResult = await CallBackendEngine(backendRequest);
+            var backendResponse = await CallBackendEngine(backendRequest);
+            var gameResult = backendResponse.Game.Results;
 
-            // Update session with results
-            session.Balance += gameResult.TotalWin; // int implicitly converts to decimal
-            session.LastWin = gameResult.TotalWin; // int implicitly converts to decimal
+            // Track if we were in free spins mode before backend processed (for win accumulation)
+            var wasInFreeSpinsMode = session.FreeSpinsRemaining > 0;
+
+            // Update session with results from backend
+            // Backend already handles balance deduction and win addition correctly
+            session.Balance = backendResponse.Player.Balance; // Backend returns int, implicitly converts to decimal
+            session.FreeSpinsRemaining = backendResponse.Player.FreeSpinsRemaining; // Use free spins from backend
+            session.LastWin = backendResponse.Player.LastWin; // Backend returns int, implicitly converts to decimal
             session.LastResponse = new GameState
             {
-                Balance = (int)session.Balance, // decimal to int conversion
-                FreeSpinsRemaining = session.FreeSpinsRemaining,
-                LastWin = (int)session.LastWin, // decimal to int conversion
+                Balance = backendResponse.Player.Balance,
+                FreeSpinsRemaining = backendResponse.Player.FreeSpinsRemaining,
+                LastWin = backendResponse.Player.LastWin,
                 Results = gameResult
             };
 
-            // Handle free spins
+            // Handle free spins total win tracking
+            // Backend already handles decrementing and balance, we just track total wins
             if (gameResult.ScatterWin.TriggeredFreeSpins)
             {
-                session.FreeSpinsRemaining += GameConstants.FreeSpinsAwarded;
+                // New free spins triggered - reset total win tracking for new free spins session
+                session.FreeSpinsTotalWin = 0;
             }
-
-            // Decrement free spins if in free spins mode
-            if (session.FreeSpinsRemaining > 0)
+            else if (wasInFreeSpinsMode)
             {
-                session.FreeSpinsRemaining--;
+                // We were in free spins mode - accumulate wins
+                session.FreeSpinsTotalWin += gameResult.TotalWin;
             }
+            
+            // Note: Frontend will detect free spins completion by checking if Left == 0
+            // No need to send a special flag - the backend state (Left === 0) is sufficient
 
             await _sessionService.UpdateSessionAsync(session);
 
@@ -252,7 +273,7 @@ public class GameController : ControllerBase
                     },
                     PrevBalance = prevBalance,
                     Balance = session.Balance,
-                    Bet = totalBet,
+                    Bet = actualBet, // 0 in free spins mode, totalBet in normal mode
                     Win = gameResult.TotalWin,
                     CurrencyId = "ZAR"
                 },
@@ -271,10 +292,10 @@ public class GameController : ControllerBase
                 {
                     Amount = gameResult.ScatterWin.TriggeredFreeSpins ? GameConstants.FreeSpinsAwarded : 0,
                     Left = session.FreeSpinsRemaining,
-                    BetValue = totalBet,
+                    BetValue = actualBet, // 0 in free spins mode
                     RoundWin = gameResult.TotalWin,
-                    TotalWin = 0, // Would need to track total free spins wins
-                    TotalBet = totalBet,
+                    TotalWin = session.FreeSpinsTotalWin, // Return total accumulated during free spins
+                    TotalBet = actualBet, // Track actual bet amount (0 in free spins mode)
                     Won = gameResult.ScatterWin.TriggeredFreeSpins ? GameConstants.FreeSpinsAwarded : 0,
                     IsPromotion = false
                 },
@@ -319,7 +340,7 @@ public class GameController : ControllerBase
         }
     }
 
-    private async Task<SpinResult> CallBackendEngine(SnowKingdomBackendAPI.ApiService.Models.PlayRequest request)
+    private async Task<PlayResponse> CallBackendEngine(SnowKingdomBackendAPI.ApiService.Models.PlayRequest request)
     {
         try
         {
@@ -350,9 +371,9 @@ public class GameController : ControllerBase
                     PropertyNamingPolicy = JsonNamingPolicy.CamelCase
                 });
                 
-                if (playResponse?.Game?.Results != null)
+                if (playResponse != null)
                 {
-                    return playResponse.Game.Results;
+                    return playResponse;
                 }
             }
             

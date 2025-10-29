@@ -18,6 +18,14 @@ builder.Services.ConfigureHttpJsonOptions(options =>
     options.SerializerOptions.PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase;
 });
 
+// Add HTTP logging middleware
+builder.Services.AddHttpLogging(options =>
+{
+    options.LoggingFields = Microsoft.AspNetCore.HttpLogging.HttpLoggingFields.All;
+    options.RequestBodyLogLimit = 64 * 1024;
+    options.ResponseBodyLogLimit = 64 * 1024;
+});
+
 // Add CORS policy to allow frontend communication
 builder.Services.AddCors(options =>
 {
@@ -50,6 +58,9 @@ var app = builder.Build();
 
 // Configure the HTTP request pipeline.
 app.UseExceptionHandler();
+
+// Enable HTTP logging
+app.UseHttpLogging();
 
 // Enable CORS
 app.UseCors();

@@ -11,6 +11,7 @@ public class GameSession
     public decimal Balance { get; set; }
     public int FreeSpinsRemaining { get; set; }
     public decimal LastWin { get; set; }
+    public decimal FreeSpinsTotalWin { get; set; } // Track total wins accumulated during free spins
     public GameState? LastResponse { get; set; }
     public DateTime CreatedAt { get; set; }
     public DateTime UpdatedAt { get; set; }

@@ -32,6 +32,14 @@ public class Program
         // Add configuration for backend URL
         builder.Services.Configure<BackendOptions>(builder.Configuration.GetSection("Backend"));
 
+        // Add HTTP logging middleware
+        builder.Services.AddHttpLogging(options =>
+        {
+            options.LoggingFields = Microsoft.AspNetCore.HttpLogging.HttpLoggingFields.All;
+            options.RequestBodyLogLimit = 64 * 1024;
+            options.ResponseBodyLogLimit = 64 * 1024;
+        });
+
         // Add CORS policy to allow the frontend to call the RGS
         builder.Services.AddCors(options =>
         {
@@ -44,6 +52,9 @@ public class Program
         });
 
         var app = builder.Build();
+
+        // Enable HTTP logging
+        app.UseHttpLogging();
 
         app.UseCors();
         app.MapDefaultEndpoints();
