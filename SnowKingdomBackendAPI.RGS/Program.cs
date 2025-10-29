@@ -1,73 +1,60 @@
 using SnowKingdomBackendAPI.ApiService.Services;
+using SnowKingdomBackendAPI.RGS.Services;
 
-var builder = WebApplication.CreateBuilder(args);
+namespace SnowKingdomBackendAPI.RGS;
 
-// Add service defaults & Aspire client integrations.
-builder.AddServiceDefaults();
-
-// Add controllers
-builder.Services.AddControllers();
-
-// Add SessionService
-builder.Services.AddSingleton<SessionService>();
-
-// Add a typed HttpClient to communicate with the backend ApiService.
-builder.Services.AddHttpClient<GameApiClient>(client =>
+public class BackendOptions
 {
-    client.BaseAddress = new("http://apiservice");
-});
+    public string Url { get; set; } = "http://localhost:5001/play";
+}
 
-// Add CORS policy to allow the frontend to call the RGS
-builder.Services.AddCors(options =>
+public class Program
 {
-    options.AddDefaultPolicy(policy =>
+    public static void Main(string[] args)
     {
-        policy.WithOrigins("http://localhost:3000") // Your frontend URL
-              .AllowAnyHeader()
-              .AllowAnyMethod();
-    });
-});
+        var builder = WebApplication.CreateBuilder(args);
 
-var app = builder.Build();
+        // Add service defaults & Aspire client integrations.
+        builder.AddServiceDefaults();
 
-app.UseCors();
-app.MapDefaultEndpoints();
+        // Add controllers
+        builder.Services.AddControllers();
 
-// Map controllers
-app.MapControllers();
+        // Add SessionService
+        builder.Services.AddSingleton<SessionService>();
 
-// Legacy endpoint for backward compatibility
-app.MapPost("/play", async (PlayRequest request, GameApiClient gameApiClient) =>
-{
-    try
-    {
-        var response = await gameApiClient.PlayAsync(request);
-        return Results.Ok(response);
-    }
-    catch (Exception ex)
-    {
-        Console.WriteLine($"Error forwarding request to ApiService: {ex.Message}");
-        return Results.Problem("Failed to connect to the game service.", statusCode: 503);
-    }
-});
+        // Add HttpClient for backend communication
+        builder.Services.AddHttpClient();
 
-app.Run();
+        // Add RNG service
+        builder.Services.AddHttpClient<RngService>();
 
-public record PlayRequest(string SessionId, int BetAmount);
+        // Add configuration for backend URL
+        builder.Services.Configure<BackendOptions>(builder.Configuration.GetSection("Backend"));
 
-public class GameApiClient
-{
-    private readonly HttpClient _httpClient;
+        // Add CORS policy to allow the frontend to call the RGS
+        builder.Services.AddCors(options =>
+        {
+            options.AddDefaultPolicy(policy =>
+            {
+                policy.WithOrigins("http://localhost:3000") // Your frontend URL
+                      .AllowAnyHeader()
+                      .AllowAnyMethod();
+            });
+        });
 
-    public GameApiClient(HttpClient httpClient)
-    {
-        _httpClient = httpClient;
-    }
+        var app = builder.Build();
 
-    public async Task<object?> PlayAsync(PlayRequest request)
-    {
-        var response = await _httpClient.PostAsJsonAsync("/play", request);
-        response.EnsureSuccessStatusCode();
-        return await response.Content.ReadFromJsonAsync<object>();
+        app.UseCors();
+        app.MapDefaultEndpoints();
+
+        // Map controllers
+        app.MapControllers();
+
+        // Add health check endpoint
+        app.MapGet("/health", () => Results.Ok(new { Status = "Healthy", Timestamp = DateTime.UtcNow }))
+           .WithName("HealthCheck");
+
+        app.Run();
     }
 }

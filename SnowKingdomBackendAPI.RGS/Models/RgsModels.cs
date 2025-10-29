@@ -52,8 +52,23 @@ public class GamePlayRequest
     [JsonPropertyName("bets")]
     public List<BetInfo> Bets { get; set; } = new();
     
+    [JsonPropertyName("bet")]
+    public decimal Bet { get; set; }
+    
     [JsonPropertyName("userPayload")]
     public object? UserPayload { get; set; }
+    
+    [JsonPropertyName("lastResponse")]
+    public object? LastResponse { get; set; }
+    
+    [JsonPropertyName("rtpLevel")]
+    public int RtpLevel { get; set; } = 1;
+    
+    [JsonPropertyName("mode")]
+    public int Mode { get; set; } = 0; // 0: normal play, 1: free spin, 2: bonus game, 3: free bets
+    
+    [JsonPropertyName("currency")]
+    public CurrencyRequest? Currency { get; set; }
 }
 
 // RGS Game Play Response
@@ -370,6 +385,12 @@ public class MaxWinCapInfo
     
     [JsonPropertyName("realWin")]
     public decimal RealWin { get; set; } = 0;
+}
+
+public class CurrencyRequest
+{
+    [JsonPropertyName("id")]
+    public string Id { get; set; } = "EUR";
 }
 
 public class FeatureInfo

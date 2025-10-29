@@ -1,0 +1,53 @@
+version: '3.8'
+
+services:
+  rgs:
+    build:
+      context: .
+      dockerfile: SnowKingdomBackendAPI.RGS/Dockerfile
+    ports:
+      - "5000:80"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - Backend__Url=http://backend:5001/play
+      - RNG__BaseUrl=http://rng-service:8080
+    depends_on:
+      - backend
+      - rng-service
+    networks:
+      - game-network
+
+  backend:
+    build:
+      context: .
+      dockerfile: SnowKingdomBackendAPI.ApiService/Dockerfile
+    ports:
+      - "5001:80"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+    networks:
+      - game-network
+
+  rng-service:
+    image: rng-fortuna:latest
+    ports:
+      - "8080:8080"
+    environment:
+      - RNG_ENVIRONMENT=development
+    networks:
+      - game-network
+
+  frontend:
+    build:
+      context: ../FrontEnd
+      dockerfile: Dockerfile
+    ports:
+      - "3000:80"
+    depends_on:
+      - rgs
+    networks:
+      - game-network
+
+networks:
+  game-network:
+    driver: bridge

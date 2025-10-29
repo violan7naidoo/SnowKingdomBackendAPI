@@ -3,6 +3,7 @@ using SnowKingdomBackendAPI.RGS.Models;
 using SnowKingdomBackendAPI.ApiService.Services;
 using SnowKingdomBackendAPI.ApiService.Models;
 using System.Text.Json;
+using System.Text;
 
 namespace SnowKingdomBackendAPI.RGS.Controllers;
 
@@ -12,11 +13,15 @@ public class GameController : ControllerBase
 {
     private readonly SessionService _sessionService;
     private readonly ILogger<GameController> _logger;
+    private readonly HttpClient _httpClient;
+    private readonly IConfiguration _configuration;
 
-    public GameController(SessionService sessionService, ILogger<GameController> logger)
+    public GameController(SessionService sessionService, ILogger<GameController> logger, HttpClient httpClient, IConfiguration configuration)
     {
         _sessionService = sessionService;
         _logger = logger;
+        _httpClient = httpClient;
+        _configuration = configuration;
     }
 
     [HttpPost("start")]
@@ -136,6 +141,45 @@ public class GameController : ControllerBase
         {
             _logger.LogInformation($"Game play requested for session: {request.SessionId}");
 
+            // Validate request
+            if (string.IsNullOrEmpty(request.SessionId))
+            {
+                return BadRequest(new GamePlayResponse
+                {
+                    StatusCode = 6002,
+                    Message = "Session ID is required"
+                });
+            }
+
+            if (request.Bets == null || !request.Bets.Any())
+            {
+                return BadRequest(new GamePlayResponse
+                {
+                    StatusCode = 6002,
+                    Message = "At least one bet is required"
+                });
+            }
+
+            // Validate bet amounts
+            if (request.Bets.Any(b => b.Amount <= 0))
+            {
+                return BadRequest(new GamePlayResponse
+                {
+                    StatusCode = 6002,
+                    Message = "Bet amounts must be greater than zero"
+                });
+            }
+
+            // Validate mode
+            if (request.Mode < 0 || request.Mode > 3)
+            {
+                return BadRequest(new GamePlayResponse
+                {
+                    StatusCode = 6002,
+                    Message = "Invalid game mode. Must be 0-3"
+                });
+            }
+
             // Get session
             var session = await _sessionService.GetSessionAsync(request.SessionId);
             if (session == null)
@@ -147,8 +191,8 @@ public class GameController : ControllerBase
                 });
             }
 
-            // Calculate total bet
-            var totalBet = request.Bets.Sum(b => b.Amount);
+            // Calculate total bet (use provided bet or calculate from bets array)
+            var totalBet = request.Bet > 0 ? request.Bet : request.Bets.Sum(b => b.Amount);
             var roundId = Guid.NewGuid().ToString("N");
             var withdrawTransactionId = Guid.NewGuid().ToString("N");
             var depositTransactionId = Guid.NewGuid().ToString("N");
@@ -167,9 +211,8 @@ public class GameController : ControllerBase
                 LastResponse = session.LastResponse
             };
 
-            // For now, we'll simulate the backend call
-            // In a real implementation, you'd call the backend API here
-            var gameResult = await SimulateBackendCall(backendRequest);
+            // Call the actual backend API
+            var gameResult = await CallBackendEngine(backendRequest);
 
             // Update session with results
             session.Balance += gameResult.TotalWin; // int implicitly converts to decimal
@@ -247,6 +290,24 @@ public class GameController : ControllerBase
 
             return Ok(response);
         }
+        catch (HttpRequestException ex)
+        {
+            _logger.LogError(ex, "Backend communication error");
+            return StatusCode(503, new GamePlayResponse
+            {
+                StatusCode = 6003,
+                Message = "Backend service unavailable"
+            });
+        }
+        catch (JsonException ex)
+        {
+            _logger.LogError(ex, "JSON serialization/deserialization error");
+            return StatusCode(400, new GamePlayResponse
+            {
+                StatusCode = 6004,
+                Message = "Invalid data format"
+            });
+        }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error playing game");
@@ -258,25 +319,50 @@ public class GameController : ControllerBase
         }
     }
 
-    private async Task<SpinResult> SimulateBackendCall(SnowKingdomBackendAPI.ApiService.Models.PlayRequest request)
+    private async Task<SpinResult> CallBackendEngine(SnowKingdomBackendAPI.ApiService.Models.PlayRequest request)
     {
-        // This is a temporary simulation for local development
-        // In production, this would call the actual backend game engine
-        
-        await Task.Delay(100); // Simulate API call delay
-        
-        // For now, return a simple result
-        // You would replace this with an actual HTTP call to your backend
-        return new SpinResult
+        try
         {
-            TotalWin = 0, // Would be calculated by backend
-            WinningLines = new List<WinningLine>(),
-            ScatterWin = new ScatterWin
+            // Get backend URL from configuration
+            var backendUrl = _configuration["apiservice:url"] ?? "http://localhost:5001/play";
+            
+            _logger.LogInformation($"Calling backend at: {backendUrl}");
+            
+            // Serialize request to JSON
+            var jsonContent = JsonSerializer.Serialize(request, new JsonSerializerOptions
             {
-                Count = 0,
-                TriggeredFreeSpins = false
-            },
-            Grid = new List<List<string>>()
-        };
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+            });
+            
+            var content = new StringContent(jsonContent, Encoding.UTF8, "application/json");
+            
+            // Make HTTP call to backend
+            var response = await _httpClient.PostAsync(backendUrl, content);
+            
+            if (response.IsSuccessStatusCode)
+            {
+                var responseContent = await response.Content.ReadAsStringAsync();
+                _logger.LogInformation($"Backend response: {responseContent}");
+                
+                // Deserialize response
+                var playResponse = JsonSerializer.Deserialize<PlayResponse>(responseContent, new JsonSerializerOptions
+                {
+                    PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+                });
+                
+                if (playResponse?.Game?.Results != null)
+                {
+                    return playResponse.Game.Results;
+                }
+            }
+            
+            _logger.LogError($"Backend call failed: {response.StatusCode} - {response.ReasonPhrase}");
+            throw new HttpRequestException($"Backend call failed: {response.StatusCode}");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error calling backend engine");
+            throw;
+        }
     }
 }
