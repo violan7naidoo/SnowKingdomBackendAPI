@@ -5,41 +5,43 @@ namespace SnowKingdomBackendAPI.ApiService.Game;
 public class GameEngine
 {
     private readonly Random _random = new();
+    private readonly GameConfig _config;
+
+    public GameEngine(GameConfig config)
+    {
+        _config = config ?? throw new ArgumentNullException(nameof(config));
+    }
 
     public SpinResult EvaluateSpin(List<List<string>> grid, int betAmount)
     {
         var result = new SpinResult();
         result.Grid = grid;
 
-        // Convert string symbol names to SymbolId for evaluation
-        var symbolGrid = grid.Select(reel =>
-            reel.Select(symbolName => GameConfiguration.Symbols.First(kvp => kvp.Value.Name == symbolName).Key).ToList()
-        ).ToList();
-
         // 1. Evaluate Paylines
-        for (int paylineIndex = 0; paylineIndex < GameConstants.Paylines.Count; paylineIndex++)
+        for (int paylineIndex = 0; paylineIndex < _config.Paylines.Count; paylineIndex++)
         {
-            var line = GameConstants.Paylines[paylineIndex];
-            var lineSymbols = line.Select((row, reel) => symbolGrid[reel][row]).ToList();
+            var line = _config.Paylines[paylineIndex];
+            var lineSymbols = line.Select((row, reel) => grid[reel][row]).ToList();
 
             // Determine the winning symbol for the line (the first non-WILD symbol)
-            var winningSymbol = lineSymbols.FirstOrDefault(s => s != SymbolId.WILD);
+            var winningSymbol = lineSymbols.FirstOrDefault(s => s != _config.WildSymbol);
 
             // If the line is all wilds, the winning symbol is WILD itself
-            if (winningSymbol == default(SymbolId))
+            if (winningSymbol == null)
             {
-                winningSymbol = SymbolId.WILD;
+                winningSymbol = _config.WildSymbol;
             }
 
             // Count consecutive symbols from the left, where WILD substitutes for the winningSymbol
             var count = 0;
-            while (count < lineSymbols.Count && (lineSymbols[count] == winningSymbol || lineSymbols[count] == SymbolId.WILD))
+            while (count < lineSymbols.Count && 
+                   (lineSymbols[count] == winningSymbol || lineSymbols[count] == _config.WildSymbol))
             {
                 count++;
             }
 
             // Check for a win based on the count and the determined winning symbol
-            if (GameConfiguration.Symbols.TryGetValue(winningSymbol, out var symbolInfo) &&
+            if (_config.Symbols.TryGetValue(winningSymbol, out var symbolInfo) &&
                 symbolInfo.Payout.TryGetValue(count, out var payout))
             {
                 var totalPayout = payout * betAmount;
@@ -49,7 +51,7 @@ public class GameEngine
                     result.WinningLines.Add(new WinningLine
                     {
                         PaylineIndex = paylineIndex,
-                        Symbol = winningSymbol, // Report the actual symbol that formed the win
+                        Symbol = winningSymbol,
                         Count = count,
                         Payout = totalPayout,
                         Line = line.Take(count).ToList()
@@ -58,15 +60,15 @@ public class GameEngine
             }
         }
 
-        // 2. Evaluate Scatters (No changes needed here)
+        // 2. Evaluate Scatters
         var scatterCount = 0;
         var scatterPositions = new List<(int reel, int row)>();
 
-        for (int reelIndex = 0; reelIndex < symbolGrid.Count; reelIndex++)
+        for (int reelIndex = 0; reelIndex < grid.Count; reelIndex++)
         {
-            for (int rowIndex = 0; rowIndex < symbolGrid[reelIndex].Count; rowIndex++)
+            for (int rowIndex = 0; rowIndex < grid[reelIndex].Count; rowIndex++)
             {
-                if (symbolGrid[reelIndex][rowIndex] == SymbolId.SCATTER)
+                if (grid[reelIndex][rowIndex] == _config.ScatterSymbol)
                 {
                     scatterCount++;
                     scatterPositions.Add((reelIndex, rowIndex));
@@ -79,19 +81,18 @@ public class GameEngine
 
         if (scatterCount >= 3)
         {
-            var scatterPayout = betAmount * (scatterCount switch
-            {
-                3 => 5,
-                4 => 20,
-                _ => 50 // 5 or 6 scatters
-            });
+            // Use scatter payout from config, with fallback for 5+ scatters
+            var scatterMultiplier = _config.ScatterPayout.TryGetValue(scatterCount, out var multiplier) 
+                ? multiplier 
+                : _config.ScatterPayout.Values.Max();
 
+            var scatterPayout = betAmount * scatterMultiplier;
             result.TotalWin += scatterPayout;
 
             result.WinningLines.Add(new WinningLine
             {
                 PaylineIndex = -1, // Special index for scatters
-                Symbol = SymbolId.SCATTER,
+                Symbol = _config.ScatterSymbol,
                 Count = scatterCount,
                 Payout = scatterPayout,
                 Line = scatterPositions.Select(p => p.row).ToList()
@@ -105,17 +106,16 @@ public class GameEngine
     {
         var grid = new List<List<string>>();
 
-        for (int reelIndex = 0; reelIndex < GameConstants.NumReels; reelIndex++)
+        for (int reelIndex = 0; reelIndex < _config.NumReels; reelIndex++)
         {
             var reel = new List<string>();
-            var strip = GameConfiguration.ReelStrips[reelIndex];
+            var strip = _config.ReelStrips[reelIndex];
             var finalStopIndex = _random.Next(strip.Count);
 
-            for (int rowIndex = 0; rowIndex < GameConstants.NumRows; rowIndex++)
+            for (int rowIndex = 0; rowIndex < _config.NumRows; rowIndex++)
             {
                 var symbolIndex = (finalStopIndex + rowIndex) % strip.Count;
-                var symbolId = strip[symbolIndex];
-                var symbolName = GameConfiguration.Symbols[symbolId].Name;
+                var symbolName = strip[symbolIndex];
                 reel.Add(symbolName);
             }
 

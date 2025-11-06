@@ -215,12 +215,21 @@ public class GameController : ControllerBase
             // IMPORTANT: Always pass the original betAmount to engine for payout calculations
             // The engine multiplies payouts by betAmount, so we need the actual bet value
             // even in free spins mode (we just don't deduct it from balance)
+            // Pass gameId from route to backend so it loads the correct config
             var backendRequest = new SnowKingdomBackendAPI.ApiService.Models.PlayRequest
             {
                 SessionId = request.SessionId,
                 BetAmount = (int)totalBet, // Use totalBet for payout calculations
-                LastResponse = session.LastResponse
+                LastResponse = session.LastResponse,
+                GameId = gameId // Pass gameId from route to backend
             };
+            
+            // Update session's GameId if it doesn't match the route (e.g., session was created with different game)
+            if (session.GameId != gameId)
+            {
+                session.GameId = gameId;
+                await _sessionService.UpdateSessionAsync(session);
+            }
 
             // Call the actual backend API
             var backendResponse = await CallBackendEngine(backendRequest);

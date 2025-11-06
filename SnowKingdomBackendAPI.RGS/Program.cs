@@ -1,4 +1,5 @@
 using SnowKingdomBackendAPI.ApiService.Services;
+using SnowKingdomBackendAPI.RGS.Controllers;
 using SnowKingdomBackendAPI.RGS.Services;
 
 namespace SnowKingdomBackendAPI.RGS;
@@ -17,8 +18,9 @@ public class Program
         // Add service defaults & Aspire client integrations.
         builder.AddServiceDefaults();
 
-        // Add controllers
-        builder.Services.AddControllers();
+        // Add controllers with explicit configuration
+        builder.Services.AddControllers()
+            .AddApplicationPart(typeof(GameController).Assembly);
 
         // Add SessionService
         builder.Services.AddSingleton<SessionService>();
@@ -45,9 +47,17 @@ public class Program
         {
             options.AddDefaultPolicy(policy =>
             {
-                policy.WithOrigins("http://localhost:3000") // Your frontend URL
+                policy.WithOrigins(
+                        "http://localhost:3000", // Lobby
+                        "http://localhost:3001", // FrontEnd (Game 1)
+                        "http://localhost:3002", // FrontEnd5x3 (Game 2)
+                        "http://127.0.0.1:3000",
+                        "http://127.0.0.1:3001",
+                        "http://127.0.0.1:3002"
+                    )
                       .AllowAnyHeader()
-                      .AllowAnyMethod();
+                      .AllowAnyMethod()
+                      .AllowCredentials();
             });
         });
 
@@ -56,11 +66,14 @@ public class Program
         // Enable HTTP logging
         app.UseHttpLogging();
 
+        // Enable CORS
         app.UseCors();
-        app.MapDefaultEndpoints();
 
-        // Map controllers
+        // Map controllers (MapControllers automatically handles routing)
         app.MapControllers();
+
+        // Map default endpoints (health checks, etc.)
+        app.MapDefaultEndpoints();
 
         // Add health check endpoint
         app.MapGet("/health", () => Results.Ok(new { Status = "Healthy", Timestamp = DateTime.UtcNow }))

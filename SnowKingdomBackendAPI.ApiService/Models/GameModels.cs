@@ -2,26 +2,8 @@ using System.Text.Json.Serialization;
 
 namespace SnowKingdomBackendAPI.ApiService.Models;
 
-public enum SymbolId
-{
-    WILD,
-    SCATTER,
-    CROWN,
-    DRAGON,
-    LEOPARD,
-    QUEEN,
-    STONE,
-    WOLF,
-    ACE,
-    JACK,
-    QUEEN_CARD,
-    KING,
-    TEN
-}
-
 public class SymbolConfig
 {
-    public SymbolId Id { get; set; }
     public string Name { get; set; } = string.Empty;
     public Dictionary<int, int> Payout { get; set; } = new();
     public string Image { get; set; } = string.Empty;
@@ -30,7 +12,7 @@ public class SymbolConfig
 public class WinningLine
 {
     public int PaylineIndex { get; set; }
-    public SymbolId Symbol { get; set; }
+    public string Symbol { get; set; } = string.Empty;
     public int Count { get; set; }
     public int Payout { get; set; }
     public List<int> Line { get; set; } = new();
@@ -55,6 +37,7 @@ public class PlayRequest
     public string SessionId { get; set; } = string.Empty;
     public int BetAmount { get; set; }
     public GameState? LastResponse { get; set; }
+    public string? GameId { get; set; } // Optional: allows RGS to specify which game config to use
 }
 
 public class GameState
