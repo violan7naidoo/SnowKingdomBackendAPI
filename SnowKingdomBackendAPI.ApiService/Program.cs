@@ -52,9 +52,13 @@ builder.Services.AddCors(options =>
                 "http://localhost:3000", // Lobby
                 "http://localhost:3001", // FrontEnd (Game 1)
                 "http://localhost:3002", // FrontEnd5x3 (Game 2)
+                "http://localhost:3003", // frontEndDamian (Inferno-Empress)
+                "http://localhost:3004", // FrontEndRicky (Reign Of Thunder)
                 "https://localhost:3000",
                 "https://localhost:3001",
                 "https://localhost:3002",
+                "https://localhost:3003",
+                "https://localhost:3004",
                 "http://localhost:9003",
                 "https://localhost:9003",
                 "http://localhost:5073",
@@ -66,6 +70,8 @@ builder.Services.AddCors(options =>
                 "http://127.0.0.1:3000",
                 "http://127.0.0.1:3001",
                 "http://127.0.0.1:3002",
+                "http://127.0.0.1:3003",
+                "http://127.0.0.1:3004",
                 "http://127.0.0.1:9003",
                 "http://127.0.0.1:5073",
                 "http://127.0.0.1:59775",

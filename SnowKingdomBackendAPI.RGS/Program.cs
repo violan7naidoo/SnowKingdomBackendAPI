@@ -51,9 +51,13 @@ public class Program
                         "http://localhost:3000", // Lobby
                         "http://localhost:3001", // FrontEnd (Game 1)
                         "http://localhost:3002", // FrontEnd5x3 (Game 2)
+                        "http://localhost:3003", // frontEndDamian (Inferno-Empress)
+                        "http://localhost:3004", // FrontEndRicky (Reign Of Thunder)
                         "http://127.0.0.1:3000",
                         "http://127.0.0.1:3001",
-                        "http://127.0.0.1:3002"
+                        "http://127.0.0.1:3002",
+                        "http://127.0.0.1:3003",
+                        "http://127.0.0.1:3004"
                     )
                       .AllowAnyHeader()
                       .AllowAnyMethod()

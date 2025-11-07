@@ -1,7 +1,7 @@
 {
-  "gameName": "Frosty Fortunes 5x3",
+  "gameName": "Inferno-Empress",
   "numReels": 5,
-  "numRows": 3,
+  "numRows": 4,
   "wildSymbol": "WILD",
   "scatterSymbol": "SCATTER",
   "freeSpinsAwarded": 10,
@@ -37,7 +37,7 @@
         "4": 25,
         "5": 60
       },
-      "image": "/images/symbols/Symbol1.png"
+      "image": "/images/symbols/Coin.png"
     },
     "SYMBOL2": {
       "name": "SYMBOL2",
@@ -46,7 +46,7 @@
         "4": 20,
         "5": 50
       },
-      "image": "/images/symbols/Symbol2.png"
+      "image": "/images/symbols/Crystal.png"
     },
     "SYMBOL3": {
       "name": "SYMBOL3",
@@ -55,7 +55,7 @@
         "4": 15,
         "5": 40
       },
-      "image": "/images/symbols/Symbol3.png"
+      "image": "/images/symbols/Dagger.png"
     },
     "SYMBOL4": {
       "name": "SYMBOL4",
@@ -64,7 +64,7 @@
         "4": 10,
         "5": 30
       },
-      "image": "/images/symbols/Symbol4.png"
+      "image": "/images/symbols/Dragon.png"
     },
     "SYMBOL5": {
       "name": "SYMBOL5",
@@ -73,7 +73,7 @@
         "4": 8,
         "5": 25
       },
-      "image": "/images/symbols/Symbol5.png"
+      "image": "/images/symbols/Feather.png"
     },
     "SYMBOL6": {
       "name": "SYMBOL6",
@@ -82,7 +82,7 @@
         "4": 5,
         "5": 20
       },
-      "image": "/images/symbols/Symbol6.png"
+      "image": "/images/symbols/Orb.png"
     },
     "SYMBOL7": {
       "name": "SYMBOL7",
@@ -91,7 +91,7 @@
         "4": 3,
         "5": 15
       },
-      "image": "/images/symbols/Symbol7.png"
+      "image": "/images/symbols/1.png"
     },
     "SYMBOL8": {
       "name": "SYMBOL8",
@@ -100,37 +100,52 @@
         "4": 3,
         "5": 15
       },
-      "image": "/images/symbols/Symbol8.png"
+      "image": "/images/symbols/2.png"
     }
   },
   "reelStrips": [
     [
       "SYMBOL1", "SYMBOL2", "SYMBOL3", "SYMBOL4", "SYMBOL5",
-      "SYMBOL6", "SYMBOL7", "SYMBOL8", "WILD", "SCATTER"
-    ],
-    [
-      "SYMBOL2", "SYMBOL3", "SYMBOL4", "SYMBOL5", "SYMBOL6",
-      "SYMBOL7", "SYMBOL8", "SYMBOL1", "WILD", "SCATTER"
-    ],
-    [
+      "SYMBOL6", "SYMBOL7", "SYMBOL8", "SYMBOL1", "SYMBOL2",
       "SYMBOL3", "SYMBOL4", "SYMBOL5", "SYMBOL6", "SYMBOL7",
       "SYMBOL8", "SYMBOL1", "SYMBOL2", "WILD", "SCATTER"
     ],
     [
+      "SYMBOL2", "SYMBOL3", "SYMBOL4", "SYMBOL5", "SYMBOL6",
+      "SYMBOL7", "SYMBOL8", "SYMBOL1", "SYMBOL2", "SYMBOL3",
       "SYMBOL4", "SYMBOL5", "SYMBOL6", "SYMBOL7", "SYMBOL8",
       "SYMBOL1", "SYMBOL2", "SYMBOL3", "WILD", "SCATTER"
     ],
     [
+      "SYMBOL3", "SYMBOL4", "SYMBOL5", "SYMBOL6", "SYMBOL7",
+      "SYMBOL8", "SYMBOL1", "SYMBOL2", "SYMBOL3", "SYMBOL4",
       "SYMBOL5", "SYMBOL6", "SYMBOL7", "SYMBOL8", "SYMBOL1",
       "SYMBOL2", "SYMBOL3", "SYMBOL4", "WILD", "SCATTER"
+    ],
+    [
+      "SYMBOL4", "SYMBOL5", "SYMBOL6", "SYMBOL7", "SYMBOL8",
+      "SYMBOL1", "SYMBOL2", "SYMBOL3", "SYMBOL4", "SYMBOL5",
+      "SYMBOL6", "SYMBOL7", "SYMBOL8", "SYMBOL1", "SYMBOL2",
+      "SYMBOL3", "SYMBOL4", "SYMBOL5", "WILD", "SCATTER"
+    ],
+    [
+      "SYMBOL5", "SYMBOL6", "SYMBOL7", "SYMBOL8", "SYMBOL1",
+      "SYMBOL2", "SYMBOL3", "SYMBOL4", "SYMBOL5", "SYMBOL6",
+      "SYMBOL7", "SYMBOL8", "SYMBOL1", "SYMBOL2", "SYMBOL3",
+      "SYMBOL4", "SYMBOL5", "SYMBOL6", "WILD", "SCATTER"
     ]
   ],
   "paylines": [
     [0, 0, 0, 0, 0],
     [1, 1, 1, 1, 1],
     [2, 2, 2, 2, 2],
+    [3, 3, 3, 3, 3],
     [0, 1, 2, 1, 0],
-    [2, 1, 0, 1, 2]
+    [2, 1, 0, 1, 2],
+    [0, 1, 2, 3, 2],
+    [3, 2, 1, 0, 1],
+    [1, 2, 3, 2, 1],
+    [2, 3, 2, 1, 0]
   ]
 }
 
